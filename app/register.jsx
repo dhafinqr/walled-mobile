@@ -1,12 +1,18 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, View, TextInput, Image } from "react-native";
-import Button from "./component/Button";
-import Input from "./component/Input";
+import { Link } from 'expo-router';
+import { StyleSheet, View, TextInput, Image, Text } from "react-native";
+import Button from "../component/Button";
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Image source={require("./assets/logo.png")} style={styles.logo} />
+      <Image source={require("../assets/logo.png")} style={styles.logo} />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Fullname"
+        placeholderTextColor="#000000"
+      />
 
       <TextInput
         style={styles.input}
@@ -22,15 +28,20 @@ export default function App() {
         secureTextEntry={true}
       />
 
-      {/* <TextInput
+      <TextInput
         style={styles.input}
         placeholder="Nomor HP"
         keyboardType="number-pad"
         placeholderTextColor="#000000"
         secureTextEntry={true}
-      /> */}
+      />
+      
+      <Button text="Register" bgColor="#19918F" />
 
-      <Button text="Login" bgColor="#19918F" />
+      <View style={styles.registerContainer}>
+              <Text style={styles.registerText}>Have an account?</Text>
+              <Link href="/" style={styles.registerLink}>Login Here</Link>
+            </View>
 
       <StatusBar style="auto" />
     </View>
@@ -59,11 +70,26 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 50,
     borderColor: "#ddd",
-    fontWeight: "bold",
     borderRadius: 15,
     paddingHorizontal: 10,
     marginBottom: 15,
     backgroundColor: "#f9f9f9",
     fontSize: 16,
+  },
+  registerContainer: {
+    flexDirection: "row", // Agar teks dan link berada dalam satu baris
+    alignItems: "center", // Vertikal rata tengah
+    justifyContent: "flex-start", // Horizontal rata kiri
+    width: "100%", // Mengambil lebar penuh dari layar
+    marginTop: 10,
+  },
+  registerText: {
+    fontSize: 14,
+    color: "#000",
+  },
+  registerLink: {
+    fontSize: 14,
+    color: "#19918F",
+    marginLeft: 5, // Jarak antara teks "Don't have an account?" dan "Register Here"
   },
 });

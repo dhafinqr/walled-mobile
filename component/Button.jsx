@@ -3,9 +3,10 @@ import { TouchableOpacity, Text, StyleSheet } from "react-native";
 {/* TouchableOpacity biar bisa dipencet */}
 {/* kalo mau sesuatu bisa dipencet bungkus dengan TouchableOpacity */}
 
-function Button({ bgColor = "#19918F", text }) {
+function Button({ bgColor = "#19918F", text, handlePress = () => {} }) {
     return(
-        <TouchableOpacity style={{ ...styles.button, backgroundColor: bgColor }}>
+        <TouchableOpacity onPress={handlePress}
+        style={{ ...styles.button, backgroundColor: bgColor }}>
                 <Text style={styles.buttonText}>{text}</Text>
               </TouchableOpacity>
     )

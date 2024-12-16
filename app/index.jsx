@@ -1,18 +1,21 @@
 import { StatusBar } from "expo-status-bar";
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { StyleSheet, View, TextInput, Image, Text } from "react-native";
 import Button from "../component/Button";
 import { z } from "zod";
 import { useState } from "react";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LoginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
-  password: z.string().min(8, { message: "Must be 8 or more characters long" }),
+  password: z.string().min(3, { message: "Must be 3 or more characters long" }),
 });
 
 export default function App() {
   const [form, setForm] = useState({});
   const [errorMsg, setErrors] = useState({});
+  const [serverError, setServerError] = useState("")
 
   const handleInputChange = (key, value) => {
     setForm({ ...form, [key]: value });
@@ -24,37 +27,61 @@ export default function App() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     try {
       LoginSchema.parse(form);
+
+     const res = await axios.post(
+      "http://192.168.30.231:8080/api/auth/login",form);
+      await AsyncStorage.setItem("accessToken", res.data.accessToken);
+      router.replace("/(home)")
     } catch (err) {
-      const errors = {};
-      err.errors.forEach((item) => {
-        const key = item.path[0];
-        errors[key] = item.message;
-      });
-      setErrors(errors);
+      if (axios.isAxiosError(err)) {
+        if (err.response) {
+          setServerError(err.response.data.message || "An error occurred");
+        } else if (err.request) {
+          setServerError("Network error. Please try again later.");
+          console.error("Network Error:", err.request);
+        } else {
+          setServerError("An unexpected error occurred.");
+          console.error("Request Setup Error:", err.message);
+        }
+      } else if (err?.errors) {
+        const errors = {};
+        err.errors.forEach((item) => {
+          const key = item.path[0];
+          errors[key] = item.message;
+        });
+        setErrors(errors);
+      } else {
+        setServerError("An unknown error occurred.");
+        console.error("Unhandled Error:", err);
+      }
     }
   };
 
   return (
     <View style={styles.container}>
+      {serverError && <Text>{serverError}</Text>}
       <Image source={require("../assets/logo.png")} style={styles.logo} />
 
       <TextInput
-        style={styles.input}
+        style={[styles.input, errorMsg.email && styles.inputError]}
         placeholder="Email"
-        placeholderTextColor="#000000"
+        placeholderTextColor="#aaa"
+        autoCapitalize="none"
         keyboardType="email-address"
         onChangeText={(text) => handleInputChange("email", text)}
+        value={form.email}
       />
        {errorMsg.email ? <Text style={styles.errorMsg}>{errorMsg.email}</Text> : null}
       <TextInput
-        style={styles.input}
+        style={[styles.input, errorMsg.password && styles.inputError]}
         placeholder="Password"
-        placeholderTextColor="#000000"
+        placeholderTextColor="#aaa"
         secureTextEntry={true}
         onChangeText={(text) => handleInputChange("password", text)}
+        value={form.password}
       />
       {errorMsg.password ? <Text style={styles.errorMsg}>{errorMsg.password}</Text> : null}
 
@@ -64,7 +91,6 @@ export default function App() {
         <Text style={styles.registerText}>Don't have an account?</Text>
         <Link href="/register" style={styles.registerLink}>Register Here</Link>
       </View>
-      <Link href="/(home)" style={styles.registerLink}>Home Here</Link>
       <StatusBar style="auto" />
     </View>
   );

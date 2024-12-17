@@ -22,7 +22,8 @@ const styles = StyleSheet.create({
         gap: 20, 
     },
     button:{
-        alignItems: "center"
+        alignItems: "center",
+        marginTop: 250
     }
 });
 
